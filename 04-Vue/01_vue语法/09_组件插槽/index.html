@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>组件插槽</title>
+    <style>
+        .current {
+            color: orange;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <alert-box>有bug发生！</alert-box>
+        <alert-box>又有bug发生！</alert-box>
+        <alert-box></alert-box>
+        <!-- 具名插槽方法一 -->
+        <base-layout>
+            <p slot='header'>标题信息</p>
+            <p>主要内容1</p>
+            <p>主要内容2</p>
+            <p slot='footer'>底部信息</p>
+        </base-layout>
+        <!--具名插槽方法二 -->
+        <base-layout>
+            <template slot='header'>
+                <p>标题信息1</p>
+                <p>标题信息2</p>
+            </template>
+            <p>主要内容1</p>
+            <p>主要内容2</p>
+            <template slot='footer'>
+                <p>底部信息1</p>
+                <p>底部信息2</p>
+            </template>
+        </base-layout>
+        <!-- 作用域插槽 -->
+        <fruit-list :list='list'>
+            <template slot-scope="slotProps">
+                <!-- <strong  :class="slotProps.info.id==2?'current':''">{{slotProps.info.name}}</strong> -->
+                <strong v-if='slotProps.info.id==2' class="current">{{slotProps.info.name}}</strong>
+                <span v-else>{{slotProps.info.name}}</span>
+            </template>
+        </fruit-list>
+    </div>
+    <script src=" ./js/jquery.js "></script>
+    <script src="./js/vue.js "></script>
+    <script>
+        //一、组件插槽的作用
+        //1、父组件向子组件传递内容
+        //2、组件插槽基本用法
+        //① 插槽位置
+        // Vue.component(' alert-box ', {
+        //     template: `
+        //     <div class="demo-alert-box ">
+        //     <strong>Error!</strong>
+        //     <slot></slot>
+        //     </div>`
+        // })
+        //② 插槽内容
+        //<alert-box>Something bad happened</alert-box>
+        Vue.component('alert-box', {
+            template: `
+            <div>
+              <strong>ERROR:</strong>
+              <slot>默认内容</slot>   
+            </div>
+            `
+        });
+        Vue.component('base-layout', {
+                template: `
+            <div>
+              <header>
+                <slot name='header'></slot>  
+              </header>
+              <main>
+                 <slot></slot>
+              </main>
+              <footer>
+                <slot name='footer'></slot>
+              </footer>
+            </div>
+            `
+            })
+            // 作用域插槽：父组件对子组件的内容进行加工处理
+            // ① 插槽定义
+            // <ul>
+            // <li v-for="item in list" :key="item.id">
+            // <slot :info='item'>
+            // {{item.name}}
+            // </slot>
+            // </li>
+            // </ul>
+            // ② 插槽内容
+            // <fruit-list :list="list">
+            // <template slot-scope="slotProps">
+            // <strong v-if="slotProps.item.current">
+            // {{slotProps.item.text}}
+            // </strong>
+            // </template> // </fruit-list>
+        Vue.component('fruit-list', {
+            props: ['list'],
+            template: `<div>
+            <ul>
+                <li :key='item.id' v-for='item in list'>
+                    <slot :info='item'>
+                        {{item.name}}
+                    </slot>
+                </li>
+            </ul>
+        </div>`
+        });
+        var vm = new Vue({
+            el: '#app ',
+            data: {
+                list: [{
+                    id: 1,
+                    name: 'apple'
+                }, {
+                    id: 2,
+                    name: 'orange'
+                }, {
+                    id: 3,
+                    name: 'banana'
+                }]
+            }
+        }); // 3、具名插槽用法 // ① 插槽定义 
+        //<div class = "container">
+        //<header>
+        //<slot name = "header"> </slot>
+        //</header>
+        //<main>
+        //<slot> </slot>
+        //</main>
+        //<footer>
+        //<slot name = "footer"> </slot>
+        // </footer>
+        //</div>
+        // ② 插槽内容 
+        //<base-layout>
+        //<h1 slot = "header"> 标题内容 </h1>
+        //<p> 主要内容1 </p>
+        //<p> 主要内容2 </p>
+        //<p slot = "footer"> 底部内容 </p>
+        //</base-layout>
+        // 根据slot进行匹配，没有匹配的放在默认main中
+    </script>
+</body>
+
+</html>

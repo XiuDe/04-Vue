@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="./js/jquery.js"></script>
+    <script src="./js/vue.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <div>{{pmsg}}</div>
+        <menu-item title='来自父组件的数据' content='写死的内容'></menu-item>
+        <menu-item :title='ptitle' content='hello'></menu-item>
+    </div>
+</body>
+<script>
+    /*1、父组件向子组件传值*/
+    // ① 组件内部通过props接收传递过来的值
+    // Vue.component('menu-item', {
+    //     props: ['title'],
+    //     template: '<div>{{title}}</div>'
+    // })
+    // ② 父组件通过属性将值传递给子组件
+    // <menu-item title="来自父组件的数据"></menu-item>
+    // <menu-item :title="title"></menu-item>
+    // 子组件
+    // ③ props属性名规则
+    // · 在props中使用驼峰形式，模板中需要使用短横线的形式
+    // · 字符串形式的模板中没有这个限制
+    // Vue.component('menu-item',{
+    //  // 在js中是驼峰式的
+    // props:['menuTitle'],
+    // template: '<div>{{menuTitle}}</div>'
+    // })
+    // 在html中是短横线方式的
+    // <menu-item menu-title="nihao"></menu-item>
+    // ④ props属性值类型
+    // · 字符串String
+    // · 数值Number
+    // · 布尔值Boolean
+    // · 数组 Array
+    // · 对象Object
+    Vue.component('third-com', {
+        props: ['testTitle'],
+        // 字符串模板
+        template: '<div>{{testTitle}} </div>'
+    })
+    Vue.component('menu-item', {
+        props: ['title', 'content'],
+        data: function() {
+            return {
+                msg: '子组件本身的数据'
+            }
+        },
+        // 字符串模板
+        template: '<div>{{msg+" "+title+" "+content}} <third-com testTitle="hello"></third-com></div>'
+    })
+    var vm = new Vue({
+        el: '#app',
+        data: {
+            pmsg: '父组件中内容',
+            ptitle: '动态绑定属性'
+        }
+    })
+</script>
+
+</html>

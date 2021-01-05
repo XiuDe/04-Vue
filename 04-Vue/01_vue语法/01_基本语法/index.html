@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>01_Vue基本使用(原生、jQuery对比)</title>
+    <style type="text/css">
+        .active {
+            border: 1px solid red;
+            width: 100px;
+            height: 100px;
+        }
+        
+        .error {
+            background-color: orange;
+        }
+        
+        .test {
+            color: #ff1e1e;
+        }
+        
+        .base {
+            font-size: 28px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 原生 -->
+    <div id="msg1"></div>
+    <script type="text/javascript">
+        let msg = "Hello World！(原)";
+        let div = document.getElementById("msg1");
+        div.innerHTML = msg;
+    </script>
+    <!-- jQuery -->
+    <div id="msg2"></div>
+    <script type="text/javascript" src="./js/jquery.js"></script>
+    <script type="text/javascript">
+        let msg2 = "Hello World！(jQuery)";
+        $("#msg2").html(msg2);
+    </script>
+    <!-- Vue -->
+    <div id="app">
+        <div>{ { msg3 } }</div>
+    </div>
+    <script type="text/javascript" src="js/vue.js"></script>
+    <script type="text/javascript">
+        new Vue({
+            el: "#app",
+            data: {
+                msg3: "Hello World！(Vue)",
+            },
+        });
+    </script>
+    <!-- Vue：模板语法 -->
+    <!-- 一、指令： 
+        1、v-cloak ：①提供样式 ②在差值表达式所在标签中添加 v-clack 指令 
+        2、v-text、v-html、v-pre： 显示文本信息跳过编译过程 
+        3、数据响应式：js数据驱动页面发生变化，相当于wx里的this.setData({})，阻止数据响应式v-once，提高性能。 
+        4、双向数据绑定：v-model 主要应用于表单数据域中 
+        5、事件绑定v-on 简写@ eg：v-onclick='num++'与@click= 
+        6、函数调用 ①普通@click='function' ②传参@click='function()' 
+        7、普通对象和参数传递 ①<button @click='say'>Say hi</button>②<button @click='say("hi",$event)'>Say hi</button>事件绑定-参数传递 ① 如果事件直接绑定函数名称，那么默认会传递事件对象作为事件函数的第一个参数 ② 如果事件绑定函数调用，那么事件对象必须作为最后一个参数显示传递，并且事件对象的名称必须是$event 
+        8、事件修饰符：.stop：阻止冒牌 和 .prevent：阻止默认行为 <a @click.stop="handle">跳转</a><a @click.prevent="handle">跳转</a>
+        9、按键修饰符 .enter和.delete ① <input @keyup.enter='submit'>键盘提交 ② <input @keyup.delete='handle'>键盘删除 
+        10、自定义案件修饰符：全局config.keyCodes对象,
+        keyCode获取 Vue.config.keyCodes.f1=112;
+        11、属性绑定：动态处理属性 v-bind <a v-bind:href='url'>跳转</a>或 <a :href='url'>跳转</a>
+        12、v-model的底层实现原理 <input :value='msg' @input='msg=$event.target.value'>
+        13、样式绑定： ① 对象语法：<div :class='{active: isActive}'></div>② 数组语法：<div :class='[activeClass, errorClass]'></div>
+        样式绑定语法细节：
+        ① 对象绑定和数组绑定可以结合使用。
+        ② class绑定的值可以简化操作。
+        ③ 默认的class如何处理？ 默认class会保留
+        14、style样式处理
+        对象语法：
+        <div :style="{color:activeColor, fontSize: fontSize}"></div>
+        数组语法：数组里放的是数组对象
+        <div :style="[baseStyle, overridingStyle]"></div>
+        15、分支循环结构
+        ① v-if
+        ② v-else
+        ③ v-else-if
+        ④ v-show
+        v-if和v-show的区别：
+        v-if控制元素是否渲染到页面，v-show控制元素是否显示(已渲染到页面)
+        16、分支循环结构
+        ① v-for遍历数组
+        <li v-for='item in list'>{{item}}</li>
+        <li v-for='(item, index) in list'>{{item}}+'---'+{{index}}</li>
+        key的作用：帮助Vue区分不同的元素，从而提高性能
+        <li :key='item.id' v-for='(item,index) in list'>{{item}}+'--'+{{index}}</li>
+        ② v-for遍历对象
+        <div v-for='(value, key, index) in object'></div>
+        <div v-if='value==12' v-for='(value, key, index) in object'></div>
+      二、Vue常用特性：
+        ① 表单处理
+        ② 自定义指令：局部指令（该组价中使用与el、data、methods同使用域，directives）和全局指令（Vue.directive）
+        定义：  使用：v-focus
+        Vue.directive('focus',{
+          inserted: function(el){
+            el：表示指令所绑定的元素
+            el.focus();
+          }
+        });
+        Vue.directive('color',{
+          inserted: function(el, binding){
+            参数获取
+            el.style.backgroundColor = binding.value.color;
+          }
+        })
+        <input type='text' v-color='{color:"orange"}' >
+        ③ 计算属性
+        <div>{{'Hello'.split('').reverse().join('')}}</div>
+        解决方案：
+        <div>{{reversedMessage}}</div>
+        computed:{
+          reversedMessage: function(){
+            return this.msg.split('').reverse().join();
+          }
+        }
+        ④ 侦听器: 与data中监听的值一样->
+        应用场景： 验证用户名是否可用的操作
+        data:{
+          firstName: 'Jim',
+          lastName: 'Green',
+          fullName: 'Jim Green'
+        }
+        watch:{
+          firstName: function(val){
+            this.fullName = val+ ' '+this.lastName;
+          }
+          lastName: function(val){
+            this.fullName = this.firstName + ' '+val;
+          }
+        }
+        应用场景：
+        侦听器：
+        1、采用侦听器监听用户名的变化
+        2、调用后台接口进行验证
+        3、根据验证的结果调整提示信息
+        <span>用户名：</span>
+        <span>
+          <input type="text" v-model.lazy="uname" >
+        </span>
+        <span>{{tip}}</span>
+        data:{
+          uname:'',
+          tip:''
+        },
+        methods:{
+          checkName: function(uname){
+            // 调用接口，但是可以使用定时任务的方式模拟接口调用
+            var that = this;
+            setTimeout(function(){
+              // 模拟接口调用
+              if(uname == 'admin'){
+                that.tip = '用户名已存在，请更换一个~'
+              }else{
+                that.tip = '用户名可以使用~'
+              }
+            }, 2000);
+          }
+        }
+        watch:{
+          uname: function(val){
+            // 调用后台接口验证用户名的合法性
+            this.checkName(val);
+            // 修改提示信息
+            this.tip='正在验证~'
+          }
+        }
+        ⑤ 过滤器：格式化数据，将字符串格式华为首字母大写，将日期格式化为指定格式
+        Vue.filter('过滤器名称', function(value){
+          // 过滤器业务逻辑
+        })
+        <div>{{msg|upper}}</div>
+        <div>{{msg|upper|lower}}</div>
+        <div :id="id|formatId"></div>
+        局部过滤器：
+        filters:{
+          capitalize: function(){}
+        }
+        带参数的过滤器
+        Vue.filter('format',function(value,arg1){
+          // value是传递过来的data数据，arg1是传递过来的参数
+        })
+        <div>{{data|format('yyyy-MM-dd')}}</div>
+        eg:
+        <div>{{data|format('yyyy-MM-dd')}}</div>
+        Vue.filter('format',function(value, arg){
+          if(arg == 'yyyy-MM-dd'){
+            let ret = '';
+            ret += value.getFullYear() + '-' + (value.getMonth()+1)+'-'+value.getDate();
+            return ret
+          }
+          return value
+        })
+        // -- --
+Vue.filter('format', function(value, arg) {
+      function dateFormat(date, format) {
+          if (typeof date === "string") {
+              var mts = date.match(/(\/Date\((\d+)\)\/)/);
+              if (mts && mts.length >= 3) {
+                  date = parseInt(mts[2]);
+              }
+          }
+          date = new Date(date);
+          if (!date || date.toUTCString() == "Invalid Date") {
+              return "";
+          }
+          var map = {
+              "M": date.getMonth() + 1, //月份 
+              "d": date.getDate(), //日 
+              "h": date.getHours(), //小时 
+              "m": date.getMinutes(), //分 
+              "s": date.getSeconds(), //秒 
+              "q": Math.floor((date.getMonth() + 3) / 3), //季度 
+              "S": date.getMilliseconds() //毫秒 
+          };
+
+          format = format.replace(/([yMdhmsqS])+/g, function(all, t) {
+              var v = map[t];
+              if (v !== undefined) {
+                  if (all.length > 1) {
+                      v = '0' + v;
+                      v = v.substr(v.length - 2);
+                  }
+                  return v;
+              } else if (t === 'y') {
+                  return (date.getFullYear() + '').substr(4 - all.length);
+              }
+              return all;
+          });
+          return format;
+      }
+      return dateFormat(value, arg);
+    })
+        三、生命周期
+        · 挂载(初始化相关属性)
+          ① beforeCreate
+          ② created
+          ③ beforeMount
+          ④ mounted
+        · 更新(元素或组件的变更操作)
+          ① beforeUpdate
+          ② updated
+        · 销毁(销毁相关属性)
+    -->
+    <div id="app1">
+        <div>{ { msg4 } }</div>
+        <div v-text="msg4"></div>
+        <div v-html="msg5"></div>
+        <div v-pre>{ { msg4 } }</div>
+        <input type="text" v-model="msg6" />
+        <div @click="num++">{ { num } }</div>
+        <div @click="handle">事件绑定</div>
+        <button @click='say("hi",$event)'>Say hi</button>
+        <div @click="handle0"><button @click="handle1">{ { num2 } }</button></div>
+        <input type="text" @keyup.aaa="handlea" />
+    </div>
+    <div id="app2">
+        <h3>{ { caltit } }</h3>
+        <label for=""><input type="text" v-model="num1" /></label
+      ><label for=""><input type="text" v-model="num2" /></label
+      ><button @click="add">计算</button>
+      <h4>和为: { { total } }</h4>
+    </div>
+    <div id="app3">
+      <a :href="url">百度</a><button @click="changeUrl">切换地址</button>
+    </div>
+    <!-- 样式相关 -->
+    <div id="app4">
+      <div :class="{active: isActive, error:isError}"></div>
+      <button @click="handleClass">切换</button>
+      <div :class="[activeClass,errorClass,{test: isTest}]">样式细节</div>
+      <button @click="handleClass2">切换</button>
+      <div :class='arrayClass'>数组类测试</div>
+      <div :class='objClass'>对象类测试</div>
+      <button @click='handleObj'>对象类切换</button>
+      <div class="base" :class='objClass'>base类测试</div>
+      <hr />
+      <div :style='{border: borderStyle, width: widthStyle, height: heightStyle}'></div>
+      <button @click='styleHandle'>style切换</button>
+      <div :style='[objStyles,overrideStyles]' @click='styleHandle'>styleArrayClass</div>
+    </div>
+    <!-- 分支结构 循环结构 -->
+    <div id="app5">
+        <div v-if='score>=90'>优秀</div>
+        <div v-else-if='score<90&&score>=80'>良好</div>
+        <div v-else-if='score<80&&score>=60'>一般</div>
+        <div v-else-if='score<80&&score>=60'>较差</div>
+        <div v-show='flag'>测试v-show</div>
+        <div>
+            <h3>水果列表</h3>
+            <ul>
+                <li v-for='item in fruits'>{{item}}</li>
+                <li v-for='(item,index) in myfruits'>{{item.ename+'--'+item.cname+'--'+index}}</li>
+            </ul>
+        </div>
+    </div>
+    <style>
+      [v-cloak] {
+        display: none;
+      }
+    </style>
+    <script type="text/javascript " src="js/vue.js "></script>
+    <script>
+      Vue.config.keyCodes.aaa = 65;
+      var vm5 = new Vue({
+          el:'#app5',
+          data: {
+              score: 99,
+              flag: false,
+              fruits: ['apple','orange','banana'],
+              myfruits: [{
+                  ename:'apple',
+                  cname:'苹果'
+              },{
+                  ename:'orange',
+                  cname:'橘子'
+              }]
+          },
+          methods: {}
+      });
+      var vm4 = new Vue({
+        el: "#app4",
+        data: {
+          isActive: true,
+          isError: true,
+          isTest: true,
+          activeClass: "active",
+          errorClass: "error",
+          arrayClass:['active','error','test'],
+          objClass:{
+              active: true,
+              error: true,
+              test: true
+          },
+          borderStyle:'1px solid blue',
+          widthStyle:'100px',
+          heightStyle:'200px',
+          objStyles:{
+              border:'1px solid green',
+              width: '200px',
+              height: '200px'
+          },
+          overrideStyles:{
+              border: '5px solid orange',
+              backgroundColor:'blue'
+          }
+        },
+        methods: {
+          handleClass() {
+            this.isActive = !this.isActive;
+            this.isError = !this.isError;
+          },
+          handleClass2() {
+            this.activeClass = "", 
+            this.errorClass = ""
+          },
+          handleObj(){
+              this.objClass.error = !this.objClass.error
+          },
+          styleHandle(){
+              this.widthStyle = '200px'
+          }
+        },
+        beforeCreate: function(){},
+        created: function(){},
+        beforeMount: function(){},
+        mounted(){},
+        beforeUpdate: function(){},
+        updated: function(){},
+        beforeDestroy: function(){},
+        destroyed: function(){}
+      });
+      var vm3 = new Vue({
+        el: "#app3",
+        data: {
+          url: "https://www.baidu.com",
+        },
+        methods: {
+          changeUrl() {
+            this.url = "https://bilibili.com";
+          },
+        },
+      });
+      var vm2 = new Vue({
+        el: "#app2",
+        data: {
+          caltit: "简单计算器",
+          num1: "",
+          num2: "",
+          total: 0,
+        },
+        methods: {
+          add() {
+            this.total = Number(this.num1) + Number(this.num2);
+          },
+        },
+      });
+      var vm = new Vue({
+        el: " #app1 ",
+        data: {
+          msg4: "v-cloak指令 ",
+          msg5: "<h1>HTML v-html 存在安全问题~</h1>",
+          msg6: "双向数据绑定！",
+          num: 0,
+          num2: 0,
+        },
+        methods: {
+          handle() {
+            this.num++;
+          },
+          say(e, event) {
+            console.log(
+              "say:e",
+              e,
+              "$event:",
+              event,
+              "event.target.innerHTML:",
+              event.target.innerHTML
+            );
+          },
+          handle0() {
+            this.num2++;
+          },
+          handle1(e) {
+            // 阻止冒泡
+            e.stopPropagation();
+          },
+          handlea(event) {
+            console.log("handlea:", event.keyCode);
+          },
+        },
+      });
+    </script>
+  </body>
+</html>

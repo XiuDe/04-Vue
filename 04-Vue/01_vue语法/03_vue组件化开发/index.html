@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue组件化开发</title>
+    <style></style>
+    <script src="./js/jquery.js"></script>
+    <script src="./js/vue.js"></script>
+    <script>
+        // 组件化开发思想 Web Components(存在兼容性，Vue部分实现了此规格)https://developer.mozilla.org/zh-CN/docs/Web/Web_Components
+        // 组件注册
+        // Vue调试工具
+        // 组件间数据交互
+        // 组件插槽
+        // 基于组件的案例
+        /*
+          1、组件注册
+          ① 全局组件注册语法
+          Vue.component(组件名称，{
+              data：组件数据，
+              template：组件模板内容
+          })
+          ② 组件注册注意事项
+          · data必须是一个函数（每个组件数据闭包环境）
+          · 组件模板内容必须是单个根元素
+          · 组件模板内容可以是模板字符串（ES6语法）
+        //   定义一个名为button-counter的新组件
+        Vue.component('button-counter',{
+            data: function(){
+                return{
+                    count: 0
+                }
+            },
+            template:'<button @click="count++">点击了{{count}}次.</button>',
+            methods:{
+                handle: function(){
+                    this.count++
+                }
+            }
+        })
+          ③ 组件命名方式
+          · 短横线方式
+            Vue.component('my-component',{})
+          · 驼峰方式 不能直接用于页面，而是用于其他短横线组件内
+            Vue.component('MyComponent',{})
+            Vue.component('HelloWorld',{
+                data: function(){
+                    return {
+                        msg: 'HelloWorld'
+                    }
+                },
+                template: `<div>{{msg}}</div>`
+            })
+            组件命名总结：
+            如果使用驼峰式命名组件，那么在使用组件的时候，只能在字符串模板中用驼峰的方式使用组件，但是在普通的标签模板中，必须使用短横线的方式使用组件。
+            ④ 局部组件注册 
+            var ComponentA = {};
+            var ComponentB = {};
+            var ComponentC = {};
+            new Vue({
+                el: '#app',
+                components: {
+                    'component-a': ComponentA,
+                    'component-b': ComponentB,
+                    'component-c': ComponentC,
+                }
+            })
+            局部组件只能在注册他的父组件中使用
+        2、 组件使用
+            <div id ='app'>
+            <button - counter> </button-counter> </div> */
+    </script>
+</head>
+
+<body>
+    <div id='app1'>
+        <!-- 同一组件名下this不一样 -->
+        <button-counter></button-counter>
+        <button-counter></button-counter>
+        <button-counter></button-counter>
+        <!-- 不对，编译器报错 -->
+        <!-- <HelloWorld></HelloWorld> -->
+        <!-- <hello-world></hello-world> -->
+        <!-- 局部组件 -->
+        <hello-world></hello-world>
+        <hello-tom></hello-tom>
+        <hello-jerry></hello-jerry>
+    </div>
+</body>
+<script>
+    /*组件注册*/
+    // Vue.component('button-counter', {
+    //     data: function() {
+    //         return {
+    //             count: 0
+    //         }
+    //     },
+    //     template: '<button @click="handle">点击了{{count}}次</button>',
+    //     methods: {
+    //         handle: function() {
+    //             this.count += 2;
+    //         }
+    //     }
+    // });
+    Vue.component('HelloWorld', {
+        data: function() {
+            return {
+                msg: 'HelloWorld'
+            }
+        },
+        template: `<div>{{msg}}</div>`
+    })
+    Vue.component('button-counter', {
+        data: function() {
+            return {
+                count: 0
+            }
+        },
+        template: `
+          <div>
+             <button @click="handle">点击了{{count}}次</button>
+             <button>测试</button>
+             <HelloWorld></HelloWorld>
+          </div>
+        `,
+        methods: {
+            handle: function() {
+                this.count += 2;
+            }
+        }
+    });
+    var HelloWorld = {
+        data: function() {
+            return {
+                msg: 'Hello World！'
+            }
+        },
+        template: '<div>{{msg}}</div>'
+    }
+    var HelloTom = {
+        data: function() {
+            return {
+                msg: 'Hello Tom！'
+            }
+        },
+        template: '<div>{{msg}}</div>'
+    }
+    var HelloJerry = {
+        data: function() {
+            return {
+                msg: 'Hello Jerry！'
+            }
+        },
+        template: '<div>{{msg}}</div>'
+    }
+    var vm1 = new Vue({
+        el: '#app1',
+        data: {},
+        components: {
+            'hello-world': HelloWorld,
+            'hello-tom': HelloTom,
+            'hello-jerry': HelloJerry
+        }
+    });
+</script>
+
+</html>
+
+</html>
